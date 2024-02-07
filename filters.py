@@ -32,15 +32,7 @@ import dlib
 import math
 import numpy as np
 
-# Open a video capture object (camera index 0)
-cap = cv2.VideoCapture(0)
-
-# Initialize a list to store points for each part of the face
-facial_points_list = []
-
 def loadModel():
-    # Make the variables global
-    global detector, predictor
 
     # Load the pre-trained face detection model from dlib
     detector = dlib.get_frontal_face_detector()
@@ -48,12 +40,14 @@ def loadModel():
     # Load the facial landmarks predictor
     predictor = dlib.shape_predictor('shape_predictor_68_face_landmarks.dat')
 
+    return detector, predictor
+
 def loadImageToOverlay(imageName):
     # Load your image with transparency using cv2.IMREAD_UNCHANGED flag
     image_to_overlay = cv2.imread(str("assets/" + imageName), cv2.IMREAD_UNCHANGED)
     return image_to_overlay
 
-def videoCaptureToGrayScale(cap):
+def videoCaptureToGrayScale(cap, detector):
     # Read the frame from the camera
     ret, frame = cap.read()
 
@@ -69,43 +63,43 @@ def videoCaptureToGrayScale(cap):
 
     return faces, gray, frame
 
-def extractCoordinatesOfFacialLandmarks(faces, gray):
+def extractCoordinatesOfFacialLandmarks(face, gray, predictor):
 
-    for i, face in enumerate(faces, 1):
-        landmarks = predictor(gray, face)
+    # for i, face in enumerate(faces, 1):
+    landmarks = predictor(gray, face)
 
-        # Extract points of all the landmarks
-        all_points = np.array([(landmarks.part(i).x, landmarks.part(i).y) for i in range(68)], dtype=np.int32)
-        # Extract points of the jawline (index 0 to 16)
-        jawline = np.array([(landmarks.part(i).x, landmarks.part(i).y) for i in range(0, 16)], dtype=np.int32)
-        # Extract points of the right eyebrow (index 17 to 21)
-        right_eyebrow = np.array([(landmarks.part(i).x, landmarks.part(i).y) for i in range(17, 21)], dtype=np.int32)
-        # Extract points of the left eyebrow (index 22 to 26)
-        left_eyebrow = np.array([(landmarks.part(i).x, landmarks.part(i).y) for i in range(22, 26)], dtype=np.int32)
-        # Extract points of the nose bridge (index 27 to 30)
-        nose_bridge = np.array([(landmarks.part(i).x, landmarks.part(i).y) for i in range(27, 30)], dtype=np.int32)
-        # Extract points of the nose base (index 31 to 35)
-        nose_base = np.array([(landmarks.part(i).x, landmarks.part(i).y) for i in range(31, 35)], dtype=np.int32)
-        # Extract points of the right eye (index 36 to 41)
-        right_eye = np.array([(landmarks.part(i).x, landmarks.part(i).y) for i in range(36, 41)], dtype=np.int32)
-        # Extract points of the left eye (index 42 to 47)
-        left_eye = np.array([(landmarks.part(i).x, landmarks.part(i).y) for i in range(42, 47)], dtype=np.int32)
-        # Extract points of the outer lips (index 48 to 59)
-        outer_lips = np.array([(landmarks.part(i).x, landmarks.part(i).y) for i in range(48, 59)], dtype=np.int32)
-        # Extract points of the inner lips (index 60 to 67)
-        inner_lips = np.array([(landmarks.part(i).x, landmarks.part(i).y) for i in range(60, 67)], dtype=np.int32)
+    # Extract points of all the landmarks
+    all_points = np.array([(landmarks.part(i).x, landmarks.part(i).y) for i in range(68)], dtype=np.int32)
+    # Extract points of the jawline (index 0 to 16)
+    jawline = np.array([(landmarks.part(i).x, landmarks.part(i).y) for i in range(0, 16)], dtype=np.int32)
+    # Extract points of the right eyebrow (index 17 to 21)
+    right_eyebrow = np.array([(landmarks.part(i).x, landmarks.part(i).y) for i in range(17, 21)], dtype=np.int32)
+    # Extract points of the left eyebrow (index 22 to 26)
+    left_eyebrow = np.array([(landmarks.part(i).x, landmarks.part(i).y) for i in range(22, 26)], dtype=np.int32)
+    # Extract points of the nose bridge (index 27 to 30)
+    nose_bridge = np.array([(landmarks.part(i).x, landmarks.part(i).y) for i in range(27, 30)], dtype=np.int32)
+    # Extract points of the nose base (index 31 to 35)
+    nose_base = np.array([(landmarks.part(i).x, landmarks.part(i).y) for i in range(31, 35)], dtype=np.int32)
+    # Extract points of the right eye (index 36 to 41)
+    right_eye = np.array([(landmarks.part(i).x, landmarks.part(i).y) for i in range(36, 41)], dtype=np.int32)
+    # Extract points of the left eye (index 42 to 47)
+    left_eye = np.array([(landmarks.part(i).x, landmarks.part(i).y) for i in range(42, 47)], dtype=np.int32)
+    # Extract points of the outer lips (index 48 to 59)
+    outer_lips = np.array([(landmarks.part(i).x, landmarks.part(i).y) for i in range(48, 59)], dtype=np.int32)
+    # Extract points of the inner lips (index 60 to 67)
+    inner_lips = np.array([(landmarks.part(i).x, landmarks.part(i).y) for i in range(60, 67)], dtype=np.int32)
 
-        # Extract tip of nose coordinates
-        tip_of_nose = (landmarks.part(30).x, landmarks.part(30).y)
-        # Extract middle of the eyes coordiantes
-        middle_of_eyes = (landmarks.part(27).x, landmarks.part(27).y)
+    # Extract tip of nose coordinates
+    tip_of_nose = (landmarks.part(30).x, landmarks.part(30).y)
+    # Extract middle of the eyes coordiantes
+    middle_of_eyes = (landmarks.part(27).x, landmarks.part(27).y)
 
-        # Extract edges of the face
-        x, y, w, h = face.left(), face.top(), face.width(), face.height()
+    # Extract edges of the face
+    x, y, w, h = face.left(), face.top(), face.width(), face.height()
 
     return x, y, w, h, middle_of_eyes, tip_of_nose
 
-def overlayImageEyes(background, foreground, x_face, y_face, rotation_angle, scale_factor=1.85):
+def overlayImage(background, foreground, x_face, y_face, rotation_angle, scale_factor=0.1):
     bg_h, bg_w, bg_channels = background.shape
     
     # Scale up the foreground image
@@ -117,7 +111,7 @@ def overlayImageEyes(background, foreground, x_face, y_face, rotation_angle, sca
 
     # Calculate offsets based on the face coordinate point
     x_offset = int(x_face - fg_w / 2)
-    y_offset = int(y_face - fg_h / 2) - 1
+    y_offset = int(float(y_face - fg_h / 2) - 0.4)
 
     # Ensure the overlay image does not extend beyond the background image
     x_offset = max(0, min(bg_w - fg_w, x_offset))
@@ -160,48 +154,58 @@ def calculate_rotation_angle(nose_middle, eye_middle):
 
     return math.degrees(radians)
 
-loadModel()
+if __name__ == "__main__":
 
-errorCount = 0
+    # Open a video capture object (camera index 0)
+    cap = cv2.VideoCapture(0)
 
-while True:
-    faces, gray, frame = videoCaptureToGrayScale(cap)
-
-    # Clear the list of lip points for each new frame
+    # Initialize a list to store points for each part of the face
     facial_points_list = []
 
-    try:
-        x, y, w, h, middle_of_eyes, tip_of_nose = extractCoordinatesOfFacialLandmarks(faces, gray)
-    # Catch the error if no face is detected
-    except UnboundLocalError:
-        # Incriment the error counter and print error count
-        errorCount += 1
-        print(f"no face detected {errorCount}")
-        # Blank the screen
-        frame[:] = 0
+    detector, predictor = loadModel()
+
+    errorCount = 0
+
+    while True:
+        faces, gray, frame = videoCaptureToGrayScale(cap, detector)
+
+        # Clear the list of lip points for each new frame
+        facial_points_list = []
+
+        try:
+            x, y, w, h, middle_of_eyes, tip_of_nose = extractCoordinatesOfFacialLandmarks(faces, gray, predictor)
+        # Catch the error if no face is detected
+        except UnboundLocalError:
+            # Incriment the error counter and print error count
+            errorCount += 1
+            print(f"no face detected {errorCount}")
+            # Blank the screen
+            frame[:] = 0
+            cv2.imshow('Testing time owo', frame)
+            cv2.waitKey(1)
+            continue
+
+        # cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+        # cv2.circle(frame, middle_of_eyes, 2, (0, 0, 255), 2)
+
+        rotation_angle = calculate_rotation_angle(tip_of_nose, middle_of_eyes)
+        print("Rotation Angle:", rotation_angle)
+
+        # Getting the image to overlay
+        eyeImage = loadImageToOverlay("swag.png")
+        noseImage = loadImageToOverlay("pig_nose.png")
+
+        frame = overlayImage(frame, eyeImage, middle_of_eyes[0], middle_of_eyes[1], rotation_angle)
+        # frame = overlayImage(frame, noseImage, tip_of_nose[0], tip_of_nose[1], rotation_angle)
+        
+        # Display the result
         cv2.imshow('Testing time owo', frame)
-        cv2.waitKey(1)
-        continue
 
-    cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
-    cv2.circle(frame, middle_of_eyes, 2, (0, 0, 255), 2)
+        # Break the loop if 'Esc' key is pressed
+        if cv2.waitKey(1) == 27:
+            break
 
-    rotation_angle = calculate_rotation_angle(tip_of_nose, middle_of_eyes)
-    print("Rotation Angle:", rotation_angle)
-
-    # Getting the image to overlay
-    image = loadImageToOverlay("swag.png")
-
-    frame = overlayImageEyes(frame, image, middle_of_eyes[0], middle_of_eyes[1], rotation_angle)
-    
-    # Display the result
-    cv2.imshow('Testing time owo', frame)
-
-    # Break the loop if 'Esc' key is pressed
-    if cv2.waitKey(1) == 27:
-        break
-
-# Release the video capture object and close all windows
-cap.release()
-cv2.destroyAllWindows()
+    # Release the video capture object and close all windows
+    cap.release()
+    cv2.destroyAllWindows()
 

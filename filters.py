@@ -99,7 +99,7 @@ def extractCoordinatesOfFacialLandmarks(face, gray, predictor):
 
     return x, y, w, h, middle_of_eyes, tip_of_nose
 
-def overlayImage(background, foreground, x_face, y_face, rotation_angle, scale_factor=0.1):
+def overlayImage(background, foreground, x_face, y_face, rotation_angle, scale_factor=0.1, offset=0.4):
     bg_h, bg_w, bg_channels = background.shape
     
     # Scale up the foreground image
@@ -111,7 +111,7 @@ def overlayImage(background, foreground, x_face, y_face, rotation_angle, scale_f
 
     # Calculate offsets based on the face coordinate point
     x_offset = int(x_face - fg_w / 2)
-    y_offset = int(float(y_face - fg_h / 2) - 0.4)
+    y_offset = int(float(y_face - fg_h / 2) - offset)
 
     # Ensure the overlay image does not extend beyond the background image
     x_offset = max(0, min(bg_w - fg_w, x_offset))
@@ -154,58 +154,56 @@ def calculate_rotation_angle(nose_middle, eye_middle):
 
     return math.degrees(radians)
 
-if __name__ == "__main__":
+def overlaySSTLogo(background, x_face=None, y_face=None):
+    foreground = loadImageToOverlay("SST_logo.png")
 
-    # Open a video capture object (camera index 0)
-    cap = cv2.VideoCapture(0)
+    bg_h, bg_w, bg_channels = background.shape
+    fg_h, fg_w, fg_channels = foreground.shape
 
-    # Initialize a list to store points for each part of the face
-    facial_points_list = []
+    foreground = cv2.resize(foreground, None, fx=0.25, fy=0.25)
+    fg_h, fg_w, fg_channels = foreground.shape
 
-    detector, predictor = loadModel()
+    # Calculate offsets based on the face coordinate point
+    if x_face is None: x_offset = 10
+    if y_face is None: y_offset = 10
 
-    errorCount = 0
+    w = min(fg_w, bg_w - x_offset)
+    h = min(fg_h, bg_h - y_offset)
 
-    while True:
-        faces, gray, frame = videoCaptureToGrayScale(cap, detector)
+    if w < 1 or h < 1: return
 
-        # Clear the list of lip points for each new frame
-        facial_points_list = []
+    # clip foreground and background images to the overlapping regions
+    bg_x = max(0, x_offset)
+    bg_y = max(0, y_offset)
+    fg_x = max(0, x_offset * -1)
+    fg_y = max(0, y_offset * -1)
+    foreground = foreground[fg_y:fg_y + h, fg_x:fg_x + w]
+    background_subsection = background[bg_y:bg_y + h, bg_x:bg_x + w]
 
-        try:
-            x, y, w, h, middle_of_eyes, tip_of_nose = extractCoordinatesOfFacialLandmarks(faces, gray, predictor)
-        # Catch the error if no face is detected
-        except UnboundLocalError:
-            # Incriment the error counter and print error count
-            errorCount += 1
-            print(f"no face detected {errorCount}")
-            # Blank the screen
-            frame[:] = 0
-            cv2.imshow('Testing time owo', frame)
-            cv2.waitKey(1)
-            continue
+    # separate alpha and color channels from the foreground image
+    foreground_colors = foreground[:, :, :3]
+    alpha_channel = foreground[:, :, 3] / 255  # 0-255 => 0.0-1.0
 
-        # cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
-        # cv2.circle(frame, middle_of_eyes, 2, (0, 0, 255), 2)
+    # construct an alpha_mask that matches the image shape
+    alpha_mask = np.dstack((alpha_channel, alpha_channel, alpha_channel))
 
-        rotation_angle = calculate_rotation_angle(tip_of_nose, middle_of_eyes)
-        print("Rotation Angle:", rotation_angle)
+    # combine the background with the overlay image weighted by alpha
+    composite = background_subsection * (1 - alpha_mask) + foreground_colors * alpha_mask
 
-        # Getting the image to overlay
-        eyeImage = loadImageToOverlay("swag.png")
-        noseImage = loadImageToOverlay("pig_nose.png")
+    # overwrite the section of the background image that has been updated
+    background[bg_y:bg_y + h, bg_x:bg_x + w] = composite
 
-        frame = overlayImage(frame, eyeImage, middle_of_eyes[0], middle_of_eyes[1], rotation_angle)
-        # frame = overlayImage(frame, noseImage, tip_of_nose[0], tip_of_nose[1], rotation_angle)
-        
-        # Display the result
-        cv2.imshow('Testing time owo', frame)
+    return background
 
-        # Break the loop if 'Esc' key is pressed
-        if cv2.waitKey(1) == 27:
-            break
+def grayscale_effect(frame):
+    # Turn the frame to grayscale
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-    # Release the video capture object and close all windows
-    cap.release()
-    cv2.destroyAllWindows()
+    return gray
 
+def colour_inversion(frame):
+    # Inverting the colours
+    frame = cv2.bitwise_not(frame)
+
+    return frame
+    

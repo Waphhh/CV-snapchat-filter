@@ -206,4 +206,3 @@ def colour_inversion(frame):
     frame = cv2.bitwise_not(frame)
 
     return frame
-    

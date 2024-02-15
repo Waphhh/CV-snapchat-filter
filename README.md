@@ -10,6 +10,11 @@ This program runs into a lot of memory issues, a lot of memory is advised, commo
 * segmentation fault
 If those occur try again but slower
 
+#### Distribution of labour
+
+Main logical flow and video capturing and editting done by Raphael
+UI elements and sourcing of assets done by vernon
+
 ### Requirements
 
 ```sh

@@ -195,14 +195,39 @@ def overlaySSTLogo(background, x_face=None, y_face=None):
 
     return background
 
-def grayscale_effect(frame):
-    # Turn the frame to grayscale
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+# This filter is extremely slow :(
+def cartooning(img):
+    edges1 = cv2.bitwise_not(cv2.Canny(img, 100, 200)) # for thin edges and inverting the mask obatined
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    gray = cv2.medianBlur(gray, 5) # applying median blur with kernel size of 5
+    edges2 = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 7, 7) # thick edges
+    dst = cv2.edgePreservingFilter(img, flags=2, sigma_s=12, sigma_r=0.1) # you can also use bilateral filter but that is slow
+    # sigma_s controls the size of the neighborhood. Range 1 - 200
+    # sigma_r controls the how dissimilar colors within the neighborhood will be averaged. A larger sigma_r results in large regions of constant color. Range 0 - 1
+    cartoon = cv2.bitwise_and(dst, dst, mask=edges1) # adding thin edges to smoothened image
 
+    return cartoon
+
+# This one is also p slow but also a bit dark and wierd
+def pencilSketchFilter(img):
+    dst_gray, dst_color = cv2.pencilSketch(img, sigma_s=128, sigma_r=0.05, shade_factor=0.05) 
+    # sigma_s controls the size of the neighborhood. Range 1 - 200
+    # sigma_r controls the how dissimilar colors within the neighborhood will be averaged. A larger sigma_r results in large regions of constant color. Range 0 - 1
+    # shade_factor is a simple scaling of the output image intensity. The higher the value, the brighter is the result. Range 0 - 0.1
+
+    return dst_color
+
+# REALLY SLOW especially with more than like 50% noise 💀
+def vintageTheme(img):
+    height, width = img.shape[:2]
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    thresh = 0.1 # creating threshold. This means noise will be added to 80% pixels
+    for i in range(height):
+        for j in range(width):
+            if np.random.rand() <= thresh:
+                if np.random.randint(2) == 0:
+                    gray[i, j] = min(gray[i, j] + np.random.randint(0, 64), 255) # adding random value between 0 to 64. Anything above 255 is set to 255.
+                else:
+                    gray[i, j] = max(gray[i, j] - np.random.randint(0, 64), 0) # subtracting random values between 0 to 64. Anything below 0 is set to 0.
+    
     return gray
-
-def colour_inversion(frame):
-    # Inverting the colours
-    frame = cv2.bitwise_not(frame)
-
-    return frame

@@ -24,6 +24,12 @@ Then run main.py
 python3 main.py
 ```
 
+### How to use
+
+When you run main.py, just select your props and theme and the camera will open.
+Once you are satisfied with the pose, press the esc key to save.
+The image will save to the captures file and be opened, press esc again to close it.
+
 ### Acknowledgements
 
 Assets were taken from various places

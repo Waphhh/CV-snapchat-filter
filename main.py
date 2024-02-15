@@ -197,7 +197,7 @@ cap.release()
 cv2.destroyAllWindows()
 
 # File name for captures
-fileNameInitial = "Captures/captured photo.jpg"
+fileNameInitial = "captures/captured photo.jpg"
 fileName = fileNameInitial
 
 count = 1 # Misc counter

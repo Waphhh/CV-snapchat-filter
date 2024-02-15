@@ -12,13 +12,17 @@ If those occur try again but slower
 
 ### Requirements
 
-```zsh pip install -r requirements.txt```
+```sh
+pip install -r requirements.txt
+```
 
 Navigate into the directory where this is located
 
 Then run main.py
 
-```zsh python3 main.py```
+```sh
+python3 main.py
+```
 
 ### Acknowledgements
 

@@ -1,0 +1,5 @@
+dlib==19.24.2
+imutils==0.5.4
+numpy==1.26.4
+opencv-python==4.9.0.80
+pillow==10.2.0

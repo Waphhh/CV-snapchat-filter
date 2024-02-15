@@ -100,10 +100,12 @@ def extractCoordinatesOfFacialLandmarks(face, gray, predictor):
     return x, y, w, h, middle_of_eyes, tip_of_nose
 
 def overlayImage(background, foreground, x_face, y_face, rotation_angle, scale_factor=0.1, offset=0.4):
+    # Dimentions of background
     bg_h, bg_w, bg_channels = background.shape
     
     # Scale up the foreground image
     foreground_scaled = cv2.resize(foreground, None, fx=scale_factor, fy=scale_factor)
+    # Dimentions of overlay image
     fg_h, fg_w, fg_channels = foreground_scaled.shape
 
     # Flip the image vertically
@@ -154,16 +156,17 @@ def calculate_rotation_angle(nose_middle, eye_middle):
 
     return math.degrees(radians)
 
+# Modified from overlayImage function
 def overlaySSTLogo(background, x_face=None, y_face=None):
     foreground = loadImageToOverlay("SST_logo.png")
 
-    bg_h, bg_w, bg_channels = background.shape
+    bg_h, bg_w = background.shape[:2]
     fg_h, fg_w, fg_channels = foreground.shape
 
-    foreground = cv2.resize(foreground, None, fx=0.35, fy=0.35)
+    foreground = cv2.resize(foreground, None, fx=0.35, fy=0.35) # Resize to predifined size
     fg_h, fg_w, fg_channels = foreground.shape
 
-    # Calculate offsets based on the face coordinate point
+    # Setting offsets based on the face coordinate point
     if x_face is None: x_offset = 10
     if y_face is None: y_offset = 10
 
@@ -198,7 +201,7 @@ def overlaySSTLogo(background, x_face=None, y_face=None):
 # This filter is extremely slow :(
 def cartooning(img):
     edges1 = cv2.bitwise_not(cv2.Canny(img, 100, 200)) # for thin edges and inverting the mask obatined
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) # converting to grayscale
     gray = cv2.medianBlur(gray, 5) # applying median blur with kernel size of 5
     edges2 = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 7, 7) # thick edges
     dst = cv2.edgePreservingFilter(img, flags=2, sigma_s=12, sigma_r=0.1) # you can also use bilateral filter but that is slow
@@ -220,7 +223,7 @@ def pencilSketchFilter(img):
 # REALLY SLOW especially with more than like 50% noise
 def vintageTheme(img):
     height, width = img.shape[:2]
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) # converting to grayscale
     thresh = 0.1 # creating threshold. This means noise will be added to 80% pixels
     for i in range(height):
         for j in range(width):

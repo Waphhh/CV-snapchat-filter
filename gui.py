@@ -9,15 +9,19 @@ class errorButton(tk.Tk):
         super().__init__()
         self.title("No Face Detected")
 
+        # Window dimensions
         window_height = 150
         window_width = 300
 
+        # Alert text
         text = tk.Label(self, text="No faces have been detected!", wraplength=300, font=('Times New Roman', 32, 'bold'))
         text.pack()
 
+        # Exit button and function
         exit_button = tk.Button(self, text="OK!", command=self.destroy)
         exit_button.pack(pady=10)
 
+        # Centreing the alert
         screen_width = self.winfo_screenwidth()
         screen_height = self.winfo_screenheight()
 
@@ -29,6 +33,7 @@ class errorButton(tk.Tk):
 class ImageGrid(tk.Tk):
     def __init__(self, images, rows, cols, padx=100, pady=20):
         super().__init__()
+        # Intialing window key items
         self.title("Photo Grid")
         self.images = images
         self.rows = rows
@@ -44,9 +49,9 @@ class ImageGrid(tk.Tk):
                 index = i * self.cols + j
                 if index < len(self.images):
                     img = Image.open(self.images[index])
-                    img = img.resize((150, 150), Image.Resampling.LANCZOS)
+                    img = img.resize((150, 150), Image.Resampling.LANCZOS) # Resize icons
                     photo = ImageTk.PhotoImage(img)
-                    frame = tk.Frame(self, padx=self.padx, pady=self.pady)
+                    frame = tk.Frame(self, padx=self.padx, pady=self.pady) # Icon padding
                     label = tk.Label(frame, image=photo)
                     label.image = photo
                     label.pack()
@@ -58,32 +63,14 @@ class ImageGrid(tk.Tk):
                     label.bind("<Button-1>", lambda filler, index = index: self.image_clicked(index))
                     # the lambda function just runs the image_clicked function, "filler" is just a filler variable that the event handler will return and we have no use of
 
+    # Closes and defines the selected icon
     def image_clicked(self, index):
         print("Image clicked:", index)
         self.selected_image = index
         self.close_window()
 
     def return_selected_image(self):
-        return self.selected_image
+        return self.selected_image # Returns selected icon
 
     def close_window(self):
         self.destroy()
-
-if __name__ == "__main__":
-    # images1 = ["assets/cat_nose.png", "assets/nose.png", "assets/pig_nose.png", "assets/red_nose.png", "assets/no_photo.png"]  # Paths to images
-    # images2 = ["assets/cowboy_hat.png", "assets/wrmask.png", "assets/mask.png", "assets/swag.png", "assets/no_photo.png"]
-    # themes = ["assets/SST_logo.png", "assets/colors.png", "assets/invert.png", "assets/no_photo.png"]
-    # rows = 3
-    # cols = 2
-    # app = ImageGrid(images1, rows, cols)
-    # app.mainloop()
-    # selected_nose = app.return_selected_image()
-    # app = ImageGrid(images2, rows, cols)
-    # app.mainloop()
-    # selected_top = app.return_selected_image()
-    # app = ImageGrid(themes, rows, cols)
-    # app.mainloop()
-    # selected_theme = app.return_selected_image()
-
-    # print(f"selected nose is: {selected_nose}, selected top is: {selected_top}, selected theme is: {selected_theme}")
-    pass

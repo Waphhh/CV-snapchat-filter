@@ -217,7 +217,7 @@ def pencilSketchFilter(img):
 
     return dst_color
 
-# REALLY SLOW especially with more than like 50% noise 💀
+# REALLY SLOW especially with more than like 50% noise
 def vintageTheme(img):
     height, width = img.shape[:2]
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)

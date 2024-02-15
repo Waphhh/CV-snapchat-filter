@@ -160,7 +160,7 @@ def overlaySSTLogo(background, x_face=None, y_face=None):
     bg_h, bg_w, bg_channels = background.shape
     fg_h, fg_w, fg_channels = foreground.shape
 
-    foreground = cv2.resize(foreground, None, fx=0.25, fy=0.25)
+    foreground = cv2.resize(foreground, None, fx=0.35, fy=0.35)
     fg_h, fg_w, fg_channels = foreground.shape
 
     # Calculate offsets based on the face coordinate point

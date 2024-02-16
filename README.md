@@ -4,7 +4,7 @@ A simple "snapchat" filter using openCV to detect facial landmarks to pinpoint p
 
 ### DISCLAIMER
 
-This program runs into a lot of memory issues, a lot of memory is advised, common zsh errors:
+This program runs into a lot of memory issues mainly due to tkinter, a lot of memory is advised, common errors:
 * trace trap
 * bus error
 * segmentation fault

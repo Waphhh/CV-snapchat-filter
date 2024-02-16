@@ -12,7 +12,7 @@ If those occur try again but slower
 
 #### Distribution of labour
 
-Main logical flow and video capturing and editting done by Raphael
+Main logical flow and video capturing and editting done by Raphael\
 UI elements and sourcing of assets done by vernon
 
 ### Requirements
@@ -31,8 +31,8 @@ python3 main.py
 
 ### How to use
 
-When you run main.py, just select your props and theme and the camera will open.
-Once you are satisfied with the pose, press the esc key to save.
+When you run main.py, just select your props and theme and the camera will open.\
+Once you are satisfied with the pose, press the esc key to save.\
 The image will save to the captures file and be opened, press esc again to close it.
 
 ### Acknowledgements

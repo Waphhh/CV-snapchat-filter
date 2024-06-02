@@ -10,6 +10,10 @@ This program runs into a lot of memory issues mainly due to tkinter, a lot of me
 * segmentation fault
 If those occur try again but slower
 
+*Edit
+
+* It now does not crash on start
+
 #### Distribution of labour
 
 Main logical flow and video capturing and editting done by Raphael\

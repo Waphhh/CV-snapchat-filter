@@ -9,18 +9,6 @@ import gui
 import os
 import sys
 
-# These 2 libraries used for memory management
-import gc
-import resource
-
-# # Get memory usage in bytes
-# mem_usage = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-
-# # Convert to megabytes for easier reading
-# mem_usage_mb = mem_usage / (1024 * 1024)
-
-# print(f"Memory usage: {mem_usage_mb:.2f} MB")
-
 # wierd reccursions occur that exceed the default limit
 # this just lets it occur
 sys.setrecursionlimit(1000000000)
@@ -77,49 +65,19 @@ headImagesPaths = ["assets/mask.png", "assets/swag.png", "assets/birthday_hat.pn
 noseImagesPaths = ["assets/red_nose.png", "assets/pig_nose.png", "assets/nose.png", "assets/no_photo.png"]
 themesPaths = ["assets/cartoon.jpeg", "assets/sketch.jpeg", "assets/vintage.jpeg", "assets/no_photo.png"]
 
-# Specify grid dimensions for prop selection
-rows = 2
-cols = 2
+# app = tk.Tk()
 
-# Opening of selection GUI
-root = gui.ImageGrid(headImagesPaths, rows, cols)
-root.mainloop()
-selectedHead = root.return_selected_image() # Handling of choice
+image_grid = gui.ImageGrid(headImagesPaths, noseImagesPaths, themesPaths)
 
-# Clear the tk window
-root = None
+image_grid.mainloop()
 
-# Short delay
-time.sleep(0.5)
+# print(image_grid.return_selected_image())
 
-# Opening of selection GUI
-root = gui.ImageGrid(noseImagesPaths, rows, cols)
-root.mainloop()
-selectedNose = root.return_selected_image() # Handling of choice
+choiceInfo = image_grid.return_selected_image()
 
-# Clear the tk window
-root = None
-
-# Short delay
-time.sleep(0.5)
-
-# Opening of selection GUI
-root = gui.ImageGrid(themesPaths, rows, cols)
-root.mainloop()
-selectedTheme = root.return_selected_image() # Handling of choice
-
-# Identifying the choice
-headData = assetData["head"][selectedHead]
-noseData = assetData["nose"][selectedNose]
-
-# clear up memory
-time.sleep(0.5) # Short delay
-del root
-del headImagesPaths
-del noseImagesPaths
-del themesPaths
-
-gc.collect()
+selectedTheme = int(choiceInfo[2])
+headData = assetData["head"][choiceInfo[0]]
+noseData = assetData["nose"][choiceInfo[1]]
 
 # Disabling tk default root
 tk.NoDefaultRoot()

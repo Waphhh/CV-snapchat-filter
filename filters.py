@@ -233,4 +233,6 @@ def vintageTheme(img):
                 else:
                     gray[i, j] = max(gray[i, j] - np.random.randint(0, 64), 0) # subtracting random values between 0 to 64. Anything below 0 is set to 0.
     
-    return gray
+    vintage_frame = cv2.merge((gray, gray, gray))
+    
+    return vintage_frame

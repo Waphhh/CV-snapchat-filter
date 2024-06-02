@@ -31,46 +31,55 @@ class errorButton(tk.Tk):
         self.geometry("{}x{}+{}+{}".format(window_width, window_height, x_cordinate, y_cordinate))
 
 class ImageGrid(tk.Tk):
-    def __init__(self, images, rows, cols, padx=100, pady=20):
+    def __init__(self, image1, image2, image3, padx=100, pady=20):
         super().__init__()
-        # Intialing window key items
         self.title("Photo Grid")
-        self.images = images
-        self.rows = rows
-        self.cols = cols
+        # self.parent = parent
         self.padx = padx
         self.pady = pady
-
+        self.images = [image1, image2, image3]
+        self.selected_image = []
         self.create_grid()
+        self.image_count = 0
+        self.update_grid(self.images[self.image_count])
 
     def create_grid(self):
-        for i in range(self.rows):
-            for j in range(self.cols):
-                index = i * self.cols + j
-                if index < len(self.images):
-                    img = Image.open(self.images[index])
-                    img = img.resize((150, 150), Image.Resampling.LANCZOS) # Resize icons
-                    photo = ImageTk.PhotoImage(img)
-                    frame = tk.Frame(self, padx=self.padx, pady=self.pady) # Icon padding
-                    label = tk.Label(frame, image=photo)
-                    label.image = photo
-                    label.pack()
+        self.grid_frame = tk.Frame(self)
+        self.grid_frame.pack()
 
-                    caption = tk.Label(frame, text=((self.images[index]).split("/")[1]).split(".")[0])
-                    caption.pack()
+    def update_grid(self, images):
+        self.clear_grid()
+        for i, img_path in enumerate(images):
+            img = Image.open(img_path)
+            img = img.resize((150, 150), Image.LANCZOS)
+            photo = ImageTk.PhotoImage(img)
+            label = tk.Label(self.grid_frame, image=photo)
+            label.image = photo
 
-                    frame.grid(row=i, column=j)
-                    label.bind("<Button-1>", lambda filler, index = index: self.image_clicked(index))
-                    # the lambda function just runs the image_clicked function, "filler" is just a filler variable that the event handler will return and we have no use of
+            caption_text = ((images[i]).split("/")[1]).split(".")[0]
+            caption = tk.Label(self.grid_frame, text=caption_text)
+            caption.grid(row=(i // 2) * 2 + 1, column=i % 2, padx=self.padx, pady=self.pady)
 
-    # Closes and defines the selected icon
+            label.grid(row=i // 2 * 2, column=i % 2, padx=self.padx, pady=self.pady)
+
+            label.bind("<Button-1>", lambda event, index=i: self.image_clicked(index))
+
+
+    def clear_grid(self):
+        for widget in self.grid_frame.winfo_children():
+            widget.destroy()
+
     def image_clicked(self, index):
         print("Image clicked:", index)
-        self.selected_image = index
-        self.close_window()
+        self.selected_image.append(index)
+        self.image_count += 1
+        if self.image_count == 3:
+            self.close_window()
+        else:
+            self.update_grid(self.images[self.image_count])
 
     def return_selected_image(self):
-        return self.selected_image # Returns selected icon
+        return self.selected_image
 
     def close_window(self):
         self.destroy()
